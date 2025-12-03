@@ -1,0 +1,44 @@
+name: Autograding Tests
+'on':
+- push
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: test_detect_turning_points.py
+      id: test_detect_turning_points-py
+      uses: classroom-resources/autograding-python-grader@v1
+      with:
+        timeout: 10
+        max-score: 5
+        setup-command: pip install pytest numpy matplotlib
+    - name: test_column_range_plot.py
+      id: test_column_range_plot-py
+      uses: classroom-resources/autograding-python-grader@v1
+      with:
+        timeout: 10
+        max-score: 5
+        setup-command: pip install pytest numpy matplotlib
+    - name: test_approx_real_root.py
+      id: test_approx_real_root-py
+      uses: classroom-resources/autograding-python-grader@v1
+      with:
+        timeout: 10
+        max-score: 5
+        setup-command: pip install pytest numpy matplotlib
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        TEST_DETECT_TURNING_POINTS-PY_RESULTS: "${{steps.test_detect_turning_points-py.outputs.result}}"
+        TEST_COLUMN_RANGE_PLOT-PY_RESULTS: "${{steps.test_column_range_plot-py.outputs.result}}"
+        TEST_APPROX_REAL_ROOT-PY_RESULTS: "${{steps.test_approx_real_root-py.outputs.result}}"
+      with:
+        runners: test_detect_turning_points-py,test_column_range_plot-py,test_approx_real_root-py
